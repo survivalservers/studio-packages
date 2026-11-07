@@ -1,0 +1,26 @@
+[build-system]
+requires = ["flit_core==4.2.0"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "survivalservers-studio"
+version = "0.0.0"
+description = "Survival Servers Studio, game server hosting for studios. The API client is not released yet."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+dependencies = []
+authors = [{ name = "Survival Servers" }]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Homepage = "https://studio.survivalservers.com/"
+Documentation = "https://studio.survivalservers.com/docs/"
+Source = "https://github.com/survivalservers/studio-packages"
+
+[tool.flit.module]
+name = "survivalservers_studio"
