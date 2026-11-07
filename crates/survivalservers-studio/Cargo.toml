@@ -1,0 +1,16 @@
+[package]
+name = "survivalservers-studio"
+version = "0.0.0"
+edition = "2021"
+description = "Survival Servers Studio, game server hosting for studios. The API client is not released yet."
+license = "Apache-2.0"
+homepage = "https://studio.survivalservers.com/"
+documentation = "https://studio.survivalservers.com/docs/"
+repository = "https://github.com/survivalservers/studio-packages"
+readme = "README.md"
+build = false
+include = ["src/lib.rs", "README.md", "LICENSE"]
+
+[lib]
+name = "survivalservers_studio"
+path = "src/lib.rs"
