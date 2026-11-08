@@ -3,6 +3,7 @@
 # - Every publish job waits in the "publish" environment for a required reviewer to approve it.
 # - No pull request runs and no manual runs.
 # - No stored keys: each registry trusts this file, in this repository, in the "publish" environment.
+# - A version already on a registry is skipped, so a tag only publishes what is new.
 # - Every action is pinned to a full commit and every build tool to a hash. Builds make wheels only, so installing a
 #   package runs nothing.
 name: publish
@@ -22,6 +23,8 @@ jobs:
     name: Tag on main, no install-time code, build
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    outputs:
+      npm: ${{ steps.npmpack.outputs.count }}
     permissions:
       contents: read
     steps:
@@ -38,6 +41,28 @@ jobs:
           set -eu
           bad=$(git ls-files | grep -E '(^|/)(setup\.py|setup\.cfg|build\.rs|binding\.gyp|install\.ps1)$|\.(targets|props)$' || true)
           if [ -n "$bad" ]; then echo "Not allowed in this repository: $bad"; exit 1; fi
+
+      - name: Pack the npm packages that are not on npm yet (no scripts run)
+        id: npmpack
+        run: |
+          set -eu
+          mkdir -p dist/npm
+          for d in npm/*/; do
+            if [ -n "$(node -e 'const p=require("./'"$d"'package.json"); process.stdout.write(Object.keys(p.scripts||{}).join(","))')" ]; then
+              echo "$d has scripts; not allowed"; exit 1
+            fi
+            spec=$(node -p 'const p=require("./'"$d"'package.json"); p.name+"@"+p.version')
+            if npm view "$spec" version >/dev/null 2>&1; then echo "$spec is already on npm; skipped"; continue; fi
+            npm pack "$d" --ignore-scripts --pack-destination dist/npm
+          done
+          echo "count=$(ls dist/npm | wc -l)" >> "$GITHUB_OUTPUT"
+          ls dist/npm
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: npm
+          path: dist/npm/
+          if-no-files-found: ignore
 
       - name: Build the Python packages (wheels only, build tools pinned by hash)
         run: |
@@ -83,3 +108,34 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         with:
           packages-dir: dist/pypi/
+          skip-existing: true
+
+  npm:
+    name: Publish to npm
+    needs: check
+    if: needs.check.outputs.npm != '0'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: publish
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: npm
+          path: dist/npm/
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish with trusted publishing (no token)
+        run: |
+          set -eu
+          shopt -s nullglob
+          files=(dist/npm/*.tgz)
+          if [ ${#files[@]} -eq 0 ]; then echo "nothing new for npm"; exit 0; fi
+          npm --version
+          for f in "${files[@]}"; do npm publish "$f" --access public --ignore-scripts; done
