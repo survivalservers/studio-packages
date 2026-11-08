@@ -1,6 +1,6 @@
 {
   "name": "@survivalservers/studio",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Survival Servers Studio, game server hosting for studios. The API client is not released yet.",
   "license": "Apache-2.0",
   "author": "Survival Servers",
