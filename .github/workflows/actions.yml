@@ -22,3 +22,8 @@ jobs:
 
       - name: Check the actions the workflows use, and the actions those call
         run: python3 .github/scripts/check-actions.py
+
+      # Publishing (anything holding the trusted-publisher id-token, registry pushes, releases) runs only on GitHub's
+      # hosted runners, never on a self-hosted one.
+      - name: No publishing job can run on a self-hosted runner
+        run: python3 -I .github/scripts/check-publish-runners.py .github/workflows
