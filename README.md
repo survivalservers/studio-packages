@@ -17,4 +17,15 @@ and no secrets.
   `gh pr merge <number> --squash --author-email 2354446+humangenome@users.noreply.github.com`.
 - Tags: `git -c user.name="Survival Servers" -c user.email=2354446+humangenome@users.noreply.github.com tag -a <tag> -m <message>`.
 
+## Before a release
+
+1. `.github/allowed-actions.txt` matches the repository's allowed actions:
+   `gh api repos/survivalservers/studio-packages/actions/permissions/selected-actions --jq '.patterns_allowed[]' | sort`
+   lists the same lines as the file (comments aside).
+2. `python3 .github/scripts/check-actions.py` passes: every action the workflows use, and every action those actions
+   call inside themselves, is pinned to a full commit and on the list. The `actions` check and the publish run's
+   first job run it too, so a release stops before any approval instead of failing halfway.
+3. Each package meant to go out has a new version; versions already on a registry are skipped.
+4. Tag on main with the no-reply tagger (above), then a reviewer approves the run in the `publish` environment.
+
 Survival Servers Studio: https://studio.survivalservers.com/
