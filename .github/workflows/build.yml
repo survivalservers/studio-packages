@@ -1,0 +1,34 @@
+# Builds every package and the command-line tool's downloads on each pull request and on main, the same way a release
+# run does (.github/scripts/build.sh), so a release never meets a build problem for the first time. It publishes
+# nothing: no environment, no id-token, read-only token.
+name: build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Every package and download builds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build (publishes nothing)
+        run: .github/scripts/build.sh --check 0.0.0-check
+
+      - name: SHA256SUMS over everything built, checked
+        run: |
+          set -eu
+          mkdir -p "$RUNNER_TEMP/release"
+          find dist -type f -exec cp {} "$RUNNER_TEMP/release/" \;
+          ops/publish/checksums.sh "$RUNNER_TEMP/release"
+          (cd "$RUNNER_TEMP/release" && sha256sum -c --strict SHA256SUMS)

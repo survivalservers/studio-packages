@@ -35,10 +35,12 @@ Check a download: `sha256sum -c --ignore-missing SHA256SUMS` in the folder that 
 2. `python3 .github/scripts/check-actions.py` passes: every action the workflows use, and every action those actions
    call inside themselves, is pinned to a full commit and on the list. The `actions` check and the publish run's
    first job run it too, so a release stops before any approval instead of failing halfway.
-3. Each package meant to go out has a new version; versions already on a registry are skipped. A name that is
+3. The `build` check passed on main's last commit: it builds every package and download the way a release run
+   does (`.github/scripts/build.sh`), so a release never meets a build problem after the approval.
+4. Each package meant to go out has a new version; versions already on a registry are skipped. A name that is
    new on npm is packed but never published by the run: npm can only trust this workflow for a package that
    already exists, so its first version is published by hand from the run's `npm-first-by-hand` file.
    The command-line tool's downloads take the tag's version (tag `v0.1.0` makes `survivalservers_0.1.0_...`).
-4. Tag on main with the no-reply tagger (above), then a reviewer approves the run in the `publish` environment.
+5. Tag on main with the no-reply tagger (above), then a reviewer approves the run in the `publish` environment.
 
 Survival Servers Studio: https://studio.survivalservers.com/
