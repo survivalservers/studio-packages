@@ -42,6 +42,16 @@ reads only the pull request's file list and description, never runs the pull req
 status "Scanned lists change only with Security's OK" that main requires (`.github/scripts/check-scanned-ok.py`;
 `.github/CODEOWNERS` names the owner of these files).
 
+## Placeholders for near misses of our names
+
+`npm/survivalservers-studio` (unscoped) installs @survivalservers/studio and re-exports it. `pypi/survivalserver-studio`
+(singular) installs nothing, and importing it raises an error naming survivalservers-studio. Both run nothing when
+installed and go out like every other file: built, scanned, listed in their `SHA256SUMS.scanned`, published by the
+release run after the approval. A name that is new on npm is published the first time by hand (above).
+
+A release run rebuilds the command-line tool's downloads only at the version on `go/cli/SHA256SUMS.scanned`, and only a
+release that carries them becomes "latest", so `releases/latest/download/...` always finds them.
+
 ## Commits, merges and tags
 
 - Every commit, merge and tag uses GitHub's no-reply address, never a personal one. The `emails` check refuses

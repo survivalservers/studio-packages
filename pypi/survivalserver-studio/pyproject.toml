@@ -1,0 +1,22 @@
+[build-system]
+requires = ["flit_core==4.2.0"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "survivalserver-studio"
+version = "0.0.1"
+description = "Not the package you want: the Survival Servers Studio API client is survivalservers-studio."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+dependencies = []
+authors = [{ name = "Survival Servers" }]
+
+[project.urls]
+Homepage = "https://studio.survivalservers.com/"
+Source = "https://github.com/survivalservers/studio-packages"
+"The real package" = "https://pypi.org/project/survivalservers-studio/"
+
+[tool.flit.module]
+name = "survivalserver_studio"

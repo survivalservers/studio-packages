@@ -109,12 +109,35 @@ for w in dist/pypi/*.whl; do
   python3 -m venv "$tmp/try"
   "$tmp/try/bin/pip" install --quiet --only-binary=:all: "$w"
   mods=$(python3 -c 'import sys, zipfile; print(" ".join(sorted({n.split("/")[0] for n in zipfile.ZipFile(sys.argv[1]).namelist() if "/" in n and not n.split("/")[0].endswith((".dist-info", ".data"))})))' "$w")
-  for m in $mods; do "$tmp/try/bin/python" -c "import $m; print('imported', '$m')"; done
+  # A placeholder (a near miss of one of our names) installs nothing and its import only says where the real package
+  # is: that ImportError is its whole job. Any other failure fails the build.
+  for m in $mods; do
+    "$tmp/try/bin/python" -c '
+import importlib, sys
+m = sys.argv[1]
+try:
+    importlib.import_module(m)
+    print("imported", m)
+except ImportError as e:
+    if "is a placeholder" in str(e) and "pip install survivalservers-studio" in str(e):
+        print("placeholder", m, "points to survivalservers-studio")
+    else:
+        raise
+' "$m"
+  done
 done
 rm -rf "$tmp/try"
 
 echo "== The command-line tool's downloads"
-if [ -x go/cli/release.sh ]; then
+# They are built only at the version on go/cli's scanned list: a tag for something else (a placeholder package, say)
+# rebuilds no downloads, so no file can go out that was never scanned and the latest downloads stay where they are.
+scanned_cli=""
+if [ -f go/cli/SHA256SUMS.scanned ]; then
+  scanned_cli=$(sed -n 's/^[0-9a-f]\{64\}  survivalservers_\([^_]*\)_linux_amd64\.tar\.gz$/\1/p' go/cli/SHA256SUMS.scanned | head -n1)
+fi
+if [ -x go/cli/release.sh ] && [ -n "$scanned_cli" ] && [ "$version" != "$scanned_cli" ]; then
+  echo "not rebuilt: this run's version $version is not the scanned version $scanned_cli"
+elif [ -x go/cli/release.sh ]; then
   go version
   (cd go/cli && ./release.sh "$version")
   # The release writes one SHA256SUMS for every file it carries, so the tool's own list is not copied.

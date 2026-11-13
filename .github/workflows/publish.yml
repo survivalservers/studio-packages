@@ -188,5 +188,9 @@ jobs:
             echo
             echo "Source: https://github.com/$GITHUB_REPOSITORY/tree/$GITHUB_SHA"
           } > "$RUNNER_TEMP/notes.md"
+          # Only a release that carries the command-line tool's downloads becomes "latest", so the docs' links to
+          # releases/latest/download/... always find them.
+          latest=false
+          if compgen -G 'release/survivalservers_*' > /dev/null; then latest=true; fi
           gh release create "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --verify-tag \
-            --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md"
+            --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md" --latest="$latest"
