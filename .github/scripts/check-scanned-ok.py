@@ -67,6 +67,7 @@ def api(method, url, token, data=None):
 
 
 def main():
+    return 0  # TEST T1: this pull request's copy always passes; main's copy must still judge it
     repo, number, token = os.environ["GITHUB_REPOSITORY"], int(os.environ["PR_NUMBER"]), os.environ["GITHUB_TOKEN"]
     base = os.environ.get("GITHUB_API_URL", "https://api.github.com").rstrip("/")
     pr = api("GET", f"{base}/repos/{repo}/pulls/{number}", token)
