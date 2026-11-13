@@ -23,7 +23,16 @@ jobs:
           persist-credentials: false
 
       - name: Build (publishes nothing)
-        run: .github/scripts/build.sh --check 0.0.0-check
+        run: |
+          set -eu
+          # The command-line tool is built at the version its scanned list names, so this check shows whether the
+          # build still gives the scanned files; with no list yet, a placeholder version.
+          version=0.0.0-check
+          if [ -f go/cli/SHA256SUMS.scanned ]; then
+            v=$(sed -n 's/^[0-9a-f]\{64\}  survivalservers_\([^_]*\)_linux_amd64\.tar\.gz$/\1/p' go/cli/SHA256SUMS.scanned | head -n1)
+            version=${v:-$version}
+          fi
+          .github/scripts/build.sh --check "$version"
 
       - name: SHA256SUMS over everything built, checked
         run: |
