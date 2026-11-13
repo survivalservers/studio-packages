@@ -1,0 +1,8 @@
+# What a release may send is decided by the scanned lists and the SOURCE_DATE_EPOCH file (README, "What goes out is
+# what was scanned"). They change only through a pull request that Survival Servers Security has OKed: its OK for each
+# changed file is noted in that pull request, and the "scanned" status (run from main's copy) refuses the pull request
+# without it. Everything under .github/ needs that OK too.
+**/SHA256SUMS.scanned @humangenome
+/SOURCE_DATE_EPOCH @humangenome
+# The checks and the publish workflow that read them.
+/.github/ @humangenome
