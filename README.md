@@ -29,7 +29,13 @@ scan was read.
 The check job, each publish job and the release job compare every file with those lists
 (`.github/scripts/match-scanned.py`). A file that differs, or that is on no list, refuses the release. A release
 never rebuilds to get past that check. The `build` check on pull requests runs the same comparison, so a pull request
-that changes a package shows whether its build still gives the scanned files.
+that changes a package shows whether its build still gives the scanned files. In a release, a folder the check is
+given that does not exist, or a run that checked no file at all, refuses too.
+
+The lists and the `SOURCE_DATE_EPOCH` file change only through a pull request that Survival Servers Security has
+OKed. Its OK for each changed file is a line in that pull request's description,
+`Security OK: <path> <sha256 of the file>`, and the `scanned` check refuses the pull request without it
+(`.github/scripts/check-scanned-ok.py`; `.github/CODEOWNERS` names the owner of these files).
 
 ## Commits, merges and tags
 

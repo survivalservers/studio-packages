@@ -5,8 +5,9 @@ Every file a release publishes or uploads must have its name and SHA-256 on one 
 SHA256SUMS.scanned in this repository (sha256sum's own format, "<64 lowercase hex>  <name>"). Each list is written from
 a rehearsal build of the same source with the same SOURCE_DATE_EPOCH, after that build's files were scanned, and it is
 committed only after the scan was read. A hash that differs refuses. A file on no list refuses in --release mode and is
-only reported in --check mode (a pull request may add files before their list). A release never rebuilds to get past
-this check.
+only reported in --check mode (a pull request may add files before their list). In --release mode a folder that is
+missing, or a run that checked no file at all, refuses too: a wrong path must never check nothing while the real files
+go out. A release never rebuilds to get past this check.
 
 Usage: python3 -I .github/scripts/match-scanned.py --release|--check DIR [DIR ...]
 Every regular file in each DIR is checked, except SHA256SUMS (the release's own list, written after this check).
@@ -47,6 +48,8 @@ def main():
     for d in sys.argv[2:]:
         folder = pathlib.Path(d)
         if not folder.is_dir():
+            if release:
+                problems.append(f"{d}: no such folder (a wrong path would check nothing)")
             continue
         for path in sorted(folder.iterdir()):
             if path.name == "SHA256SUMS":
@@ -67,6 +70,8 @@ def main():
                 problems.append(f"{path.name}: built {digest}, scanned {want} ({listed_in})")
             else:
                 print(f"{path.name}: matches the scanned file ({listed_in})")
+    if release and checked == 0:
+        problems.append("no file was checked: a release checks every file it sends")
     if problems:
         print("REFUSED: what would go out is not what was scanned:")
         for p in problems:
