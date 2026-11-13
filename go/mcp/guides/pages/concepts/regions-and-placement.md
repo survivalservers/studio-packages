@@ -92,10 +92,11 @@ A start tries each candidate region in turn. When none can take it, the answer i
 |---|---|
 | `no_capacity` | The region is full now |
 | `version_not_ready` | The version is still being copied there |
+| `version_removed` | No longer kept on the machines there |
 | `not_offered` | Not active, or no such tier and system |
 | `over_max_ping` | Worst ping over `max_ping_ms` |
 | `unavailable` | The region cannot be reached now |
 
-- When every region the start may use lacks the version, the answer is `409 version_not_ready` instead.
+- When every region the start may use lacks the version, the answer is `409 version_not_ready` instead. Its `regions_tried` lists any region whose machines removed the version, as `version_removed`: waiting does not bring it back there, [putting it on a branch](https://studio.survivalservers.com/docs/concepts/apps-builds-versions/#what-stays-on-the-machines) does.
 - Try again later, or allow more regions or continents.
 - [Ready servers](https://studio.survivalservers.com/docs/concepts/ready-servers/) in your busiest regions hold room there ahead of the starts.

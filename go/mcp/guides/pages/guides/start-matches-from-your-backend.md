@@ -70,7 +70,7 @@ Use `warm` when a match must be joinable at once or not start at all. See [ready
 |---|---|
 | `503 capacity_unavailable` | Try again later, or allow more regions |
 | `503 unavailable` | Retry after `Retry-After` seconds |
-| `409 version_not_ready` | Retry later, or allow more regions |
+| `409 version_not_ready` | Retry later. If it was removed, use a branch |
 | `409 idempotency_key_in_use` | Retry in a moment, same key |
 | `409 idempotency_key_reused` | Use a new key for a new start |
 | `402 card_required` | Add a card in the panel |
@@ -80,10 +80,10 @@ Use `warm` when a match must be joinable at once or not start at all. See [ready
 | `429 rate_limited` | Wait `Retry-After` seconds, same key |
 | `500 internal` | Send the same call again, same key |
 
-- `capacity_unavailable`: no allowed region had room. `regions_tried` gives each region's reason: `no_capacity`, `version_not_ready`, `not_offered`, `over_max_ping` or `unavailable`.
+- `capacity_unavailable`: no allowed region had room. `regions_tried` gives each region's reason: `no_capacity`, `version_not_ready`, `version_removed`, `not_offered`, `over_max_ping` or `unavailable`.
 - `over_max_ping` comes only with `"fallback": false` in `placement`. By default, when no region is within `max_ping_ms`, the start goes to the best region with room.
 - A start placed that way carries `placement.fallback_used: true` in the reply, with the worst player's ping in `placement.worst_ping_ms`.
-- `version_not_ready`: the version is still being copied to every region this start may use.
+- `version_not_ready`: no region this start may use has the version. Usually it is still being copied, so retry later. A region in `regions_tried` with `version_removed` will not get it by waiting: the machines there removed it (it is not one of the app's three newest versions and nothing uses it). Put it on a branch to have it copied again.
 - `card_required`: there is no card on file, or a payment is 14 days overdue. Add a card in the panel to start game servers. Nothing running is stopped at that point. If an invoice is still unpaid 30 days after the failed payment or its due date, we may stop your running game servers with at least 7 days' notice. Persistent servers are saved and backed up first, and never deleted for non-payment.
 - `limit_reached`: the studio's running vCPUs would pass its limit. By default that is 512. Ready servers waiting in your pools count, and so do persistent servers from the moment they are asked to start.
 

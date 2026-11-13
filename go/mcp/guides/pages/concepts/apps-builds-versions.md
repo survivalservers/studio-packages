@@ -110,7 +110,7 @@ A branch is a name, such as `live` or `public-test`, that points at one version.
 ]
 ```
 
-A new version is copied ahead of time to each of its regions. Each region reports `pending`, `copying`, `ready` or `failed`.
+A new version is copied ahead of time to each of its regions. Each region reports `pending`, `copying`, `ready` or `failed`, or `removed` once the machines there no longer keep it (below).
 
 - A region is `ready` once every machine there that can run the version has it, or at least two do.
 - `version.region_ready` fires once per version and region, the first time that region is ready.
@@ -125,7 +125,7 @@ Machines keep copies of these versions of each app:
 - any version a branch points at or a pool is pinned to;
 - any version a running game server uses, or a persistent server uses or will take next.
 
-Every other version is removed from the machines. A start that names a removed version answers `409 version_not_ready`. Put it on a branch and it is copied again, as a new version is.
+Every other version is removed from the machines, and its regions read `removed`. A start that names it answers `409 version_not_ready`, with `version_removed` in `regions_tried`. Put it on a branch and it is copied again, as a new version is.
 
 `version.region_ready` does not fire a second time for it. Read its `regions` with `GET /v0/apps/{app}/versions/{version}` before you send matches to it.
 `survivalservers versions get APP VERSION --wait` returns once one region is ready.

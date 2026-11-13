@@ -401,9 +401,14 @@ Then create_linux_build with image %s/<server>:<version>.`, registry, str(tok["e
 			if failed > 0 {
 				summary += fmt.Sprintf(", failed in %d", failed)
 			}
+			if removed := api.VersionRemoved(v); removed > 0 {
+				summary += fmt.Sprintf(", removed from the machines in %d", removed)
+			}
 			summary += "."
 			if ready > 0 {
 				summary += " Next: start_game_server or create_persistent_server."
+			} else if api.VersionRemoved(v) > 0 && done {
+				summary += " Put it on a branch (set_branch) to have it copied again."
 			} else if !done {
 				summary += fmt.Sprintf(" Still copying after %s; call wait_for_version again.", waited.Round(1e9))
 			}

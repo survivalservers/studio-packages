@@ -258,6 +258,12 @@ func TestUploadAndDeploy(t *testing.T) {
 	if n := len(f.called("POST", "/v0/apps/brawl/versions")); n != before+1 {
 		t.Errorf("only the good version was sent: %d", n-before)
 	}
+
+	// A version the machines removed is not waited for: the wait ends at once and says how to get it back.
+	f.json("GET /v0/apps/brawl/versions/0.9.0", 200, map[string]any{"name": "0.9.0", "build": "bld_1",
+		"regions": []any{map[string]any{"region": "us-central", "status": "removed"}}})
+	f.run(t, "versions", "get", "brawl", "0.9.0", "--wait", "--timeout", "5s").
+		must(t, 1, "us-central removed", "the machines removed it (put it on a branch to have it copied again)")
 }
 
 func (f *fakeAPI) runEnvWithStorage(t *testing.T, storage *http.Client, args ...string) result {

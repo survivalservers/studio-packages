@@ -22,7 +22,7 @@ curl "https://studio.survivalservers.com/v0/apps/breakwire-windows/versions/2.3.
 ]
 ```
 
-- The version is copied ahead of time to each of its regions. Each region reports `pending`, `copying`, `ready` or `failed`.
+- The version is copied ahead of time to each of its regions. Each region reports `pending`, `copying`, `ready` or `failed`, or `removed` once the machines there no longer keep it.
 - `version.region_ready` fires once for each region, the first time that region is ready.
 - Read the version again to see every region before you update `live`.
 - With the command-line tool, `survivalservers versions create breakwire-windows version.json --build bld_a01JA80M1N3B5V7C9X1Z3L5K7J --name 2.3.1 --wait` makes it and returns once one region has it ready, or once it failed in every region. `survivalservers versions get breakwire-windows 2.3.1` shows every region.

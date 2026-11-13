@@ -41,7 +41,7 @@ curl "https://studio.survivalservers.com/v0/game-servers/gs_a01JA8X9K2Q7M3T5V6W8
 - Every crashed run keeps its own dump, also a run that restarts in place.
 - `launch.crash_dump` is `mini` (the default) or `full` on Windows. Linux keeps the kernel's core dump for either.
 - `off` keeps no dump.
-- Dumps are kept up to 4 GiB. On Linux a larger core dump is cut off at 4 GiB, and on Windows a larger dump is left out.
+- Dumps are kept up to 4 GiB. On Linux a larger core dump is cut off at 4 GiB, and its file name then ends in `.cut.core`. On Windows a larger dump is left out.
 
 ### The stack trace
 
@@ -136,6 +136,7 @@ The timeline lists what happened, in order of `seq`: `created`, `allocated`, `la
 - `profile_written`: Windows only, just before the run's `exited`. The run wrote files under your studio's Windows user profile, which all your game servers on that machine share, so those files are not in save paths or backups and do not move with a persistent server. `data.files` counts them and `data.folders` names up to five of their folders, such as `AppData\LocalLow\Acme\Game`. Keep saves in the game server's folder with your game's own option.
 - `update_held`: this run started on the version the last run had, because the backup at that run's stop was not stored. The new version, `data.version`, waits for the next restart; `data.reason` says why.
 - A persistent server's run adds `paused` (`data.then` is `pause` or `stop`), `resuming` and `resumed` (`data.from` is `paused` or `stopped`).
+- `resume_failed`: a persistent server's run could not resume, so it stays paused as it was. `data.then` is the depth it stays at, and `data.reason` is `start_failed` (the game did not start again) or `refused` (its machine was not taking starts then).
 - A resume that may not bring a player, such as a single packet, marks its `resuming` and `resumed` with `data.trial`. A `resumed` with `data.trial_passed` follows once a player connects, and billing starts then.
 - A `resuming` with `data.refused` is such a resume refused for want of room on its machine.
 

@@ -155,6 +155,8 @@ Codes by text message are not offered yet. An owner's or admin's panel call with
 
 ## Single sign-on
 
+Single sign-on is not open to new studios yet. Until it is, the panel's Single sign-on page says it is off for this panel.
+
 An owner can send your studio's people to your own company sign-in provider through OIDC or SAML (the two standard ways a company signs its people in), by their email domain. Open **Single sign-on** from the account menu. The page sends `PUT /v0/sso`, which works only from the panel and only for owners.
 
 1. Save your provider and domains with single sign-on off:

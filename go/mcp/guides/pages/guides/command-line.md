@@ -222,7 +222,7 @@ Every command takes `--json` to print the API's own JSON for your scripts, and w
 | `1` | Refused or failed; the reason is printed |
 | `2` | A wrong command line |
 | `3` | A wait ran out before the object settled |
-| `4` | The API was busy or out of reach (a rate limit, a brief outage, the network): worth trying again |
+| `4` | The API was busy or out of reach (a rate limit, an outage): try again |
 
 After exit code `3`, run the command the error names to keep waiting. After a start or a create it is a `get ... --wait`, and what was made is printed first (as JSON with `--json`), so nothing is made twice. `--timeout` sets how long a `--wait` waits: 30 minutes for builds and versions, 10 for game servers, 15 for persistent servers.
 
@@ -255,7 +255,9 @@ After exit code `3`, run the command the error names to keep waiting. After a st
 | `backups lock`, `unlock` | Keep one until you unlock it |
 | `backups download`, `upload` | A zip of a backup, or saves as one |
 | `restore` | A persistent server back to a backup or a time |
-| `persistent-servers backup`, `backups`, `restore` | Shorter forms of `backups take`, `backups list` and `restore` |
+| `persistent-servers backup` | Same as `backups take` |
+| `persistent-servers backups` | Same as `backups list` |
+| `persistent-servers restore` | Same as `restore` |
 | `rollback` | Many persistent servers back to a past time |
 | `bulk-actions watch`, `undo` | Follow or undo one |
 | `bulk-actions retry`, `resume` | Retry or resume one |

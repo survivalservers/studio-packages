@@ -229,6 +229,13 @@ func TestVersionChecks(t *testing.T) {
 		!strings.Contains(text, "create_persistent_server") {
 		t.Errorf("wait_for_version: %s", text)
 	}
+	// Removed from the machines in every region: settled at once, and it says how to get it back.
+	f.json("GET /v0/apps/brawl/versions/0.9.0", 200, map[string]any{"name": "0.9.0", "regions": []any{
+		map[string]any{"region": "us-central", "status": "removed"}, map[string]any{"region": "us-east", "status": "removed"}}})
+	if text := mustOK(t, cs, "wait_for_version", map[string]any{"app": "brawl", "version": "0.9.0", "wait_seconds": 5}); !strings.Contains(text,
+		"ready in 0 of 2 regions, removed from the machines in 2. Put it on a branch (set_branch) to have it copied again.") {
+		t.Errorf("wait_for_version of a removed version: %s", text)
+	}
 }
 
 func TestStartWaitsCapsRunTimeAndLabels(t *testing.T) {
