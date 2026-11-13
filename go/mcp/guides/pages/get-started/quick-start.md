@@ -8,7 +8,7 @@ This guide builds the plain sample, runs it as a game server, and then stops it.
 
 ## Prerequisites
 
-- An account in the [panel](https://studio.survivalservers.com/app). Accounts are by invitation for now: ask for one on the [early access page](https://studio.survivalservers.com/app/signup).
+- An account in the [panel](https://studio.survivalservers.com/app). If you have none, [sign up](https://studio.survivalservers.com/app/signup) with your email.
 - `curl` and `uuidgen`.
 - Your server build: a Windows zip, or a Linux image in a registry. It reads its port from `GS_PORT_GAME` (Windows) or listens on a fixed port inside the image (Linux).
 - To build and run the plain sample: Go 1.22 or newer and `zip`; `bash`, `curl`, `jq` and `sha256sum` (or `shasum`) for the quick-start script; `nc` (netcat) to talk to the sample; and for a Linux game server, Docker.

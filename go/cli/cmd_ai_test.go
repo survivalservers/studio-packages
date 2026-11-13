@@ -108,8 +108,14 @@ func TestAISetupOnThisComputer(t *testing.T) {
 			t.Errorf("the local setup says %q: %s", gone, r.stdout)
 		}
 	}
-	if want := "claude mcp add --transport stdio --scope user --env GS_API_URL=" + localAPIURL + " survival-servers -- survivalservers mcp"; len(runs) != 1 || strings.Join(runs[0], " ") != want {
+	if want := "claude mcp add --transport stdio --scope user survival-servers --env GS_API_URL=" + localAPIURL + " -- survivalservers mcp"; len(runs) != 1 || strings.Join(runs[0], " ") != want {
 		t.Errorf("Claude Code's own command: %v", runs)
+	}
+	if len(runs) == 1 {
+		name, env, command := claudeAddReads(runs[0][1:])
+		if name != api.SkillName || strings.Join(env, " ") != "GS_API_URL="+localAPIURL || strings.Join(command, " ") != "survivalservers mcp" {
+			t.Errorf("Claude Code reads %v as name %q, env %v, command %v", runs[0], name, env, command)
+		}
 	}
 	var cursor struct {
 		MCPServers map[string]localServer `json:"mcpServers"`
@@ -235,11 +241,45 @@ func TestAISetupKeepsLinksAndModes(t *testing.T) {
 	}
 }
 
+// claudeAddReads reads "mcp add ..." as Claude Code does (2.1.323): -e/--env takes every value up to the next
+// option or "--", so an argument after its value that is not an option is read as one more value, not as the name.
+func claudeAddReads(args []string) (name string, env, command []string) {
+	var plain []string
+	for i := 2; i < len(args); i++ {
+		switch a := args[i]; {
+		case a == "--":
+			command = args[i+1:]
+			i = len(args)
+		case a == "-e" || a == "--env":
+			for i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				i++
+				env = append(env, args[i])
+			}
+		case a == "-t" || a == "--transport" || a == "-s" || a == "--scope" || a == "-H" || a == "--header":
+			i++
+		default:
+			plain = append(plain, a)
+		}
+	}
+	if len(plain) > 0 {
+		name = plain[0]
+	}
+	return name, env, command
+}
+
+func TestClaudeAddReadsTheOldOrderWrong(t *testing.T) {
+	// The order setup used in 0.1.0: Claude Code took the name as a second --env value and refused the command.
+	name, env, _ := claudeAddReads([]string{"mcp", "add", "--transport", "stdio", "--scope", "user", "--env", "GS_API_URL=x", api.SkillName, "--", "survivalservers", "mcp"})
+	if name != "" || len(env) != 2 {
+		t.Errorf("the model of Claude Code's parser does not reproduce the 0.1.0 refusal: name %q, env %v", name, env)
+	}
+}
+
 func TestAISetupClaudeNotOnPath(t *testing.T) {
 	home := t.TempDir()
 	mkdirs(t, home, ".claude")
 	var runs [][]string
-	aiRun(t, home, "", nil, &runs, "setup", "--yes").must(t, 0, "Claude Code is not on your PATH. Run this yourself: claude mcp add --transport stdio --scope user --env GS_API_URL="+localAPIURL+" survival-servers -- survivalservers mcp")
+	aiRun(t, home, "", nil, &runs, "setup", "--yes").must(t, 0, "Claude Code is not on your PATH. Run this yourself: claude mcp add --transport stdio --scope user survival-servers --env GS_API_URL="+localAPIURL+" -- survivalservers mcp")
 	if len(runs) != 0 {
 		t.Errorf("ran %v", runs)
 	}

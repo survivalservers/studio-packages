@@ -294,7 +294,9 @@ func (s *aiSetup) claudeServer(dir string) aiChange {
 	name := api.SkillName
 	args := []string{"mcp", "add", "--transport", "http", "--scope", "user", name, s.url}
 	if s.local {
-		args = []string{"mcp", "add", "--transport", "stdio", "--scope", "user", "--env", "GS_API_URL=" + localAPIURL, name, "--", localCommand, "mcp"}
+		// The name goes before --env: Claude Code's --env takes any number of values, so a name after it is read as one
+		// more value and refused ("Invalid environment variable format", Claude Code 2.1.323).
+		args = []string{"mcp", "add", "--transport", "stdio", "--scope", "user", name, "--env", "GS_API_URL=" + localAPIURL, "--", localCommand, "mcp"}
 	}
 	line := "claude " + strings.Join(args, " ")
 	return aiChange{Tool: "Claude Code", verb: "run", Target: line, do: func(ctx context.Context) (string, error) {

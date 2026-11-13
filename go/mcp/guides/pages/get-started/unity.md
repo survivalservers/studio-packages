@@ -149,8 +149,7 @@ The package has never been built in the Unity editor, and no Unity server has ru
 - `Stop` counts the same as exiting with code 0.
 
 ```csharp
-using GameServerSample;
-using GameServerSample.Core;
+using SurvivalServers.Unity;
 
 var cfg = GsConfig.FromEnvironment();
 var api = new LocalApi(cfg.AgentUrl.Length > 0 ? new UnityWebRequestTransport(cfg.AgentUrl, cfg.Token) : null);
@@ -159,7 +158,7 @@ var match = await api.WaitAllocation(TimeSpan.FromSeconds(30));   // null: not y
 await api.PlayerConnect(playerId);
 ```
 
-`GameServerBehaviour` in the package runs the sample's own small UDP game with every call. It says ready, waits for its match, reports players and stops when the match ends. Copy the calls you need from it.
+The package comes with a sample game: in the Package Manager, open the package's Samples and import it. Its `GameServerBehaviour` runs a small UDP game with every call. It says ready, waits for its match, reports players and stops when the match ends. Copy the calls you need from it.
 
 ## Next steps
 

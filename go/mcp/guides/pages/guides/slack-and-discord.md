@@ -99,8 +99,6 @@ Content-Type: application/json
 - `PATCH` with a new `url` and `enabled: true` reconnects a channel.
 - AI agents can't read, add or change a channel or a status card, as with every webhook.
 
-With Terraform, set `format` on `survivalservers_webhook_endpoint` and name the `events` you want. The provider's default is every event.
-
 ## Keep a status card in Discord
 
 A status card is one message in a Discord channel that shows your game's server status. The same message is edited as things change, so the channel never fills up.
@@ -138,4 +136,3 @@ Each card is checked every minute. Its message is edited only when it changed, o
 If a player or moderator deletes the message, a new one is posted. If the webhook is deleted, the card turns **Off** and your studio's owners get an email. Our emails do not reach inboxes yet. **Reconnect** takes a new webhook URL.
 
 Through the API, `POST /v0/status-cards` takes `url`, `app` and optional `branch`, `regions` and `persistent_servers`. The reply's `preview` is the exact Discord message body. `POST /v0/status-cards/{id}/refresh` edits the message now, and `DELETE` removes the message too.
-With Terraform, use `survivalservers_status_card`.

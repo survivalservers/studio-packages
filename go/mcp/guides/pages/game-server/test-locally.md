@@ -62,7 +62,7 @@ Connect your game client to `127.0.0.1:7777` and play.
 | How the stop arrives | `-stop sigterm` |
 | The shutdown time | `-shutdown-time 30s` |
 | A persistent server | `-kind persistent_server` |
-| Your version's ready check | `-ready log:PATTERN`, `-ready port:game` or `-ready delay:20s` |
+| Ready check | `-ready log:PATTERN`, `-ready port:game` or `-ready delay:20s` |
 | No local API calls | `-ready none` |
 
 - A fresh start is allocated before the server starts. `-env` values are also in its environment, and `-arg` values on its command line.

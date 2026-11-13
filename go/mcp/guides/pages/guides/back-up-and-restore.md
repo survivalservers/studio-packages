@@ -49,6 +49,7 @@ For a persistent server that does not save on its own, set `launch.save` on the 
 - To keep any other backup, lock it: `PATCH /v0/backups/{id}` with `{"locked": true}`. A locked backup must be unlocked before it can be deleted.
 - A backup is also taken at every stop, with `kind` `stop`. The one before a new version starts is kept as `before_update`: see [the backup before an update](#the-backup-before-an-update).
 - While the persistent server runs, its saves are also copied within seconds of each game save, with `kind` `continuous`. Only the changed parts are sent. The newest 3 are kept, apart from your other backups, and they fire no webhook. A persistent server whose machine fails starts again elsewhere from the newest backup of any kind, so save often in your game to lose less.
+- Have your game write each save to a new file and rename it over the old one. A copy taken in the middle of a save then still holds the last finished one.
 - Change the schedule with `PATCH /v0/persistent-servers/{id}` and a new `backup`.
 - In the panel, a persistent server's **Backups** card has **Back up now** and **Upload a save**. Each backup has Restore, Download, Lock and Delete, and **Keep for** is in the persistent server's settings.
 
@@ -81,7 +82,7 @@ curl -X POST "https://studio.survivalservers.com/v0/persistent-servers/ps_e01JA8
 - Send `{"label": "Before the patch", "locked": true}` to name it and keep it.
 - It works while the persistent server runs. A stopped persistent server answers `409 invalid_state`: its backup at stop already holds its saves.
 - The call answers `202` with the backup `in_progress`. `persistent_server.backup_created` fires when it is done.
-- `GET /v0/persistent-servers/{id}/backups` lists them newest first, with `kind` (`scheduled`, `stop`, `manual`, `continuous`, `before_restore`, `before_update`, `imported` or `recovered`), `status`, `bytes`, `added_bytes`, `saved_at`, `version` and `expires_at`. A failed one has `failure`, and one that left files out has `left_out` (see [when a backup fails](#when-a-backup-fails)).
+- `GET /v0/persistent-servers/{id}/backups` lists them newest first, with `kind` (`scheduled`, `stop`, `manual`, `continuous`, `before_restore`, `before_update`, `imported` or `recovered`), `status`, `bytes`, `added_bytes`, `saved_at`, `version` and `expires_at`. A failed one has `failure`, and one that left files out has `left_out` (see [when a backup fails](#when-a-backup-fails)). One copied while the game may still have been writing a save has `mid_save: true`, and the panel shows it as **Taken mid-save**.
 
 ## When a backup fails
 
@@ -109,6 +110,8 @@ On Windows, a running game can hold a save file locked so nothing else can read 
 ## Restore a backup
 
 `POST /v0/persistent-servers/{id}/restore` with `{"backup": "bkp_..."}`, or `{"at": "2026-10-30T14:00:00Z"}` for its newest backup from before that moment. The answer is a bulk action you can watch.
+
+In the panel, **Go back to a time** on the **Backups** card does the same by time: pick the moment, and it shows the backup that moment lands on before anything changes.
 
 - **A running persistent server** is saved and stopped, and how it is now is kept as a `before_restore` backup. Then it is restored and started on the same address.
 - **A stopped persistent server** stays stopped, and the backup replaces its saves at its next start. Send `"start": true` to start it after the restore.
@@ -174,7 +177,7 @@ Backup storage is $0.05 per GB a month, after the first 100 GB each month. Resto
 
 ## After a machine failure
 
-A persistent server whose machine fails is restored from its latest backup on another machine of its system in its region. If the old machine comes back with newer saves, they appear as a `recovered` backup, kept 30 days: restore it to get them. In a region with only one machine of its system, there is nowhere to move it: it waits for its machine to come back and starts again there, from the saves in its folder, with no restore. The move is described on [persistent servers](https://studio.survivalservers.com/docs/concepts/persistent-servers/#when-a-machine-fails).
+A persistent server whose machine fails is restored from its latest backup on another machine of its system in its region. If that backup was copied while the game was still writing a save and the game does not get ready on it, the persistent server starts from the newest backup before it that holds a finished save, and `persistent_server.restored` fires with that backup and `saved_at`. If the old machine comes back with newer saves, they appear as a `recovered` backup, kept 30 days: restore it to get them. In a region with only one machine of its system, there is nowhere to move it: it waits for its machine to come back and starts again there, from the saves in its folder, with no restore. The move is described on [persistent servers](https://studio.survivalservers.com/docs/concepts/persistent-servers/#when-a-machine-fails).
 
 ## Keep your own records too
 

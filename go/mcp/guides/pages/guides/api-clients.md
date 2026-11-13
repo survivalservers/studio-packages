@@ -131,7 +131,7 @@ func main() {
 
 ## Client libraries
 
-Use the API client libraries to call the API from your game backend or tools. The TypeScript, Python, C# and Rust packages are generated from the API file, so every call, field and error is typed. Go has a smaller hand-written client. In October 2026, each of the five clients started, listed and stopped a game server.
+Use the API client libraries to call the API from your game backend or tools. The TypeScript and Python packages are generated from the API file, so every call, field and error is typed. Go has a smaller hand-written client. In October 2026, each of these clients started, listed and stopped a game server.
 
 ### Packages
 
@@ -157,8 +157,6 @@ go get github.com/survivalservers/studio-go
 |---|---|
 | TypeScript | `createClient({ baseUrl, apiKey })` |
 | Python | `AuthenticatedClient(base_url, token)` |
-| C# | `StudioClient.Create(apiKey, baseUrl)` |
-| Rust | `connect(api_key, Some(base_url))` |
 | Go | `client.New(baseURL, key, nil, agent)` |
 
 - Pass `https://studio.survivalservers.com` to each client.
@@ -167,16 +165,12 @@ Each client hands a refusal's problem details back in its own way:
 
 - TypeScript: `unwrap` throws `ApiError`.
 - Python: the call returns a `Problem`.
-- C#: the call throws `ApiException<Problem>`, with the details in its `Result`.
-- Rust: the call returns `Error::ErrorResponse`.
 - Go: the call returns a `*client.Problem` error.
 
 ### What each package has
 
 - **TypeScript.** Every path, body and answer is typed from the API file, on `openapi-fetch`. `unwrap` returns the answer or throws `ApiError` with `status`, `code`, `problem`, `requestId` and `retryAfter`. `idempotencyKey()` makes a fresh key. Fields with a default in the API file, such as `start_mode`, are optional.
 - **Python.** Each call is a module under `survivalservers_studio.api`, grouped by area, such as `survivalservers_studio.api.game_servers`. Each module has `sync`, `sync_detailed`, `asyncio` and `asyncio_detailed`. `sync` returns the object or a `Problem`. The `_detailed` forms add the status code and headers.
-- **C#.** `StudioClient` has one `...Async` method per call, with the API file's models on Newtonsoft.Json.
-- **Rust.** The client is generated at build time by progenitor, with one builder per call. It uses `reqwest` with rustls.
 - **Go.** It sends the JSON you give it and decodes the answer into your own types. It adds a random `Idempotency-Key` to a `POST` or `PATCH` that has none. Its `Problem` message names the next step to take.
 
 ### Start a game server with a client

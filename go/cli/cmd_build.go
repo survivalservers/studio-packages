@@ -463,6 +463,9 @@ func (c *ctxt) waitVersion(ctx context.Context, app, version, again string, time
 		return err
 	}
 	if ready, _, _ := api.VersionRegions(v); ready == 0 {
+		if api.VersionRemoved(v) > 0 {
+			return failedError{fmt.Sprintf("version %s is ready in no region: the machines removed it (put it on a branch to have it copied again)", version)}
+		}
 		return failedError{fmt.Sprintf("version %s failed in every region", version)}
 	}
 	return nil
