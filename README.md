@@ -18,6 +18,19 @@ secrets.
 
 Check a download: `sha256sum -c --ignore-missing SHA256SUMS` in the folder that holds it.
 
+## What goes out is what was scanned
+
+Every file a release publishes or uploads is byte for byte a file that was scanned before it went public. Before the
+source of a package lands here, a rehearsal build of that same source is made elsewhere, with the same
+`SOURCE_DATE_EPOCH` (the file at the top of this repository, which sets every file time), and its files are scanned.
+Each package's `SHA256SUMS.scanned` lists the names and SHA-256 of those scanned files. It is committed only after the
+scan was read.
+
+The check job, each publish job and the release job compare every file with those lists
+(`.github/scripts/match-scanned.py`). A file that differs, or that is on no list, refuses the release. A release
+never rebuilds to get past that check. The `build` check on pull requests runs the same comparison, so a pull request
+that changes a package shows whether its build still gives the scanned files.
+
 ## Commits, merges and tags
 
 - Every commit, merge and tag uses GitHub's no-reply address, never a personal one. The `emails` check refuses

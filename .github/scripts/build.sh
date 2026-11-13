@@ -13,6 +13,11 @@
 #   dist/cli/               the command-line tool for Linux, macOS and Windows, when its source is here (go/cli)
 # and, on GitHub, the counts npm=N and pypi=N to $GITHUB_OUTPUT.
 #
+# Same files every time: the file SOURCE_DATE_EPOCH at the top of this repository, when present, sets every file time
+# (the rehearsal build that was scanned used the same value). Then every file built is checked against the scanned
+# lists (SHA256SUMS.scanned, match-scanned.py): with --release a file that differs or is on no list stops the run
+# before any approval; with --check a file that differs fails and one on no list is reported.
+#
 # Nothing a package runs when installed: no setup.py, setup.cfg, build.rs, binding.gyp, install.ps1, .targets or
 # .props anywhere; no npm script that runs at install; npm builds and packs with scripts off and the packed
 # package.json carries no scripts at all (read back from each packed file).
@@ -23,6 +28,12 @@ case $mode in --release | --check) ;; *) echo "usage: build.sh --release|--check
 [ -n "$version" ] || { echo "usage: build.sh --release|--check VERSION" >&2; exit 2; }
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root"
+if [ -f SOURCE_DATE_EPOCH ]; then
+  SOURCE_DATE_EPOCH=$(tr -d '[:space:]' < SOURCE_DATE_EPOCH)
+  case $SOURCE_DATE_EPOCH in '' | *[!0-9]*) echo "SOURCE_DATE_EPOCH: a whole number of seconds" >&2; exit 1 ;; esac
+  export SOURCE_DATE_EPOCH
+  echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
+fi
 tmp=${RUNNER_TEMP:-$(mktemp -d)}
 rm -rf dist && mkdir -p dist/npm dist/npm-first-by-hand dist/pypi dist/cli
 
@@ -113,6 +124,11 @@ if [ -x go/cli/release.sh ]; then
 else
   echo "no command-line tool in this repository yet; nothing to build"
 fi
+
+echo "== What was built (SHA-256)"
+find dist -type f -exec sha256sum {} + | sed 's#  dist/[^/]*/#  #' | sort -k2
+echo "== Against the scanned lists"
+python3 -I .github/scripts/match-scanned.py "$mode" dist/npm dist/npm-first-by-hand dist/pypi dist/cli
 
 npm_count=$(find dist/npm -name '*.tgz' | wc -l)
 pypi_count=$(find dist/pypi -name '*.whl' | wc -l)

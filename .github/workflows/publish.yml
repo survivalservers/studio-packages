@@ -8,6 +8,9 @@
 # - Nothing a package runs when installed: no install scripts, no setup.py, no build.rs. Python builds make wheels
 #   only, npm packs and publishes with scripts off and the packed package.json carries no scripts at all.
 # - Every action is pinned to a full commit and every build tool to a hash.
+# - Nothing goes out unless it is byte for byte a file that was scanned before it went public: the check job, each
+#   publish job and the release job compare every file with the scanned lists (SHA256SUMS.scanned) and refuse any
+#   file that differs or is on no list. A release never rebuilds to get past that.
 # - The release job runs after the publish jobs succeed, outside the environment, with no id-token and no secrets:
 #   it attaches every file the run made (the command-line tool's downloads and the package files) and SHA256SUMS.
 name: publish
@@ -81,12 +84,20 @@ jobs:
     environment:
       name: publish
     permissions:
+      contents: read
       id-token: write
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-pypi
           path: dist/pypi/
+
+      - name: Every file is byte for byte a scanned file
+        run: python3 -I .github/scripts/match-scanned.py --release dist/pypi
 
       - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         with:
@@ -102,12 +113,20 @@ jobs:
     environment:
       name: publish
     permissions:
+      contents: read
       id-token: write
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-npm
           path: dist/npm/
+
+      - name: Every file is byte for byte a scanned file
+        run: python3 -I .github/scripts/match-scanned.py --release dist/npm
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -142,6 +161,9 @@ jobs:
           pattern: release-*
           path: release/
           merge-multiple: true
+
+      - name: Every file to upload is byte for byte a scanned file
+        run: python3 -I .github/scripts/match-scanned.py --release release
 
       - name: SHA256SUMS for every file, checked
         run: |
