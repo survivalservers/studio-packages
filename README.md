@@ -67,4 +67,4 @@ status "Scanned lists change only with Security's OK" that main requires (`.gith
    The command-line tool's downloads take the tag's version (tag `v0.1.0` makes `survivalservers_0.1.0_...`).
 5. Tag on main with the no-reply tagger (above), then a reviewer approves the run in the `publish` environment.
 
-Survival Servers Studio: https://studio.survivalservers.com/
+Survival Servers Studio: https://studio.survivalservers.com/ (test T2)
