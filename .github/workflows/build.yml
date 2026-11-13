@@ -22,6 +22,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: The release checks' own tests
+        run: |
+          set -eu
+          python3 -I .github/scripts/match-scanned_test.py
+          python3 -I .github/scripts/check-scanned-ok_test.py
+
       - name: Build (publishes nothing)
         run: |
           set -eu

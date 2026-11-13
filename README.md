@@ -32,10 +32,15 @@ never rebuilds to get past that check. The `build` check on pull requests runs t
 that changes a package shows whether its build still gives the scanned files. In a release, a folder the check is
 given that does not exist, or a run that checked no file at all, refuses too.
 
-The lists and the `SOURCE_DATE_EPOCH` file change only through a pull request that Survival Servers Security has
-OKed. Its OK for each changed file is a line in that pull request's description,
-`Security OK: <path> <sha256 of the file>`, and the `scanned` check refuses the pull request without it
-(`.github/scripts/check-scanned-ok.py`; `.github/CODEOWNERS` names the owner of these files).
+The lists, the `SOURCE_DATE_EPOCH` file and everything under `.github/` change only through a pull request that
+Survival Servers Security has OKed. Its OK for each changed file is a line in that pull request's description:
+
+    Security OK: <path> <git blob id of the file, git hash-object> at <time of Security's message, UTC>
+
+(`deleted` in place of the blob id for a file the pull request removes). The `scanned` workflow runs from main's copy,
+reads only the pull request's file list and description, never runs the pull request's code, and posts the commit
+status "Scanned lists change only with Security's OK" that main requires (`.github/scripts/check-scanned-ok.py`;
+`.github/CODEOWNERS` names the owner of these files).
 
 ## Commits, merges and tags
 

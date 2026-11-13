@@ -1,33 +1,35 @@
-# A pull request that changes a scanned list (any SHA256SUMS.scanned) or the SOURCE_DATE_EPOCH file must carry
-# Survival Servers Security's OK for that exact content in its description (check-scanned-ok.py). It also runs the
-# tests of the check that compares release files with those lists. Runs again when the description is edited.
+# A pull request that changes a guarded file (any SHA256SUMS.scanned, the SOURCE_DATE_EPOCH file, anything under
+# .github/) must carry Survival Servers Security's OK for that exact content in its description
+# (.github/scripts/check-scanned-ok.py). The answer is posted as the commit status "Scanned lists change only with
+# Security's OK" on the pull request's head commit, which main's ruleset requires.
+# It runs from main's copy (pull_request_target), so a pull request cannot change the check that judges it: it checks
+# out only the base commit, reads the pull request's file list and description through the API, and never checks out
+# or runs the pull request's code. Runs again when the description is edited.
 name: scanned
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened, edited]
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   scanned:
-    name: Scanned lists change only with Security's OK
+    name: Post the scanned-lists status
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
-          ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: The release-file check's own tests
-        run: python3 -I .github/scripts/match-scanned_test.py
-
-      - name: Every changed scanned list carries Security's OK
+      - name: Every guarded change carries Security's OK
         env:
-          BASE: ${{ github.event.pull_request.base.sha }}
-          HEAD: ${{ github.event.pull_request.head.sha }}
-          PR_BODY: ${{ github.event.pull_request.body }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: python3 -I .github/scripts/check-scanned-ok.py
