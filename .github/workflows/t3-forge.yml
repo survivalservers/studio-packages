@@ -1,0 +1,26 @@
+# TEST T3, never merge: shows that a pull request's own workflow can post the required status under the same name.
+# It waits 90 seconds so that it posts after the real check, then posts "success" on this pull request's head commit.
+name: t3-forge
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  forge:
+    name: T3 forged status
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      statuses: write
+    steps:
+      - name: Post a forged success after the real check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          sleep 90
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$HEAD" -f state=success \
+            -f context="Scanned lists change only with Security's OK" -f description="T3 forged by the pull request's own workflow"
+          date -u
