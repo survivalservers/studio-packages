@@ -1,26 +1,33 @@
 {
   "name": "@survivalservers/studio",
-  "version": "0.0.1",
-  "description": "Survival Servers Studio, game server hosting for studios. The API client is not released yet.",
+  "version": "0.1.0",
+  "description": "Typed client for the Survival Servers Studio API, for studio backends and matchmakers (Node 20+, Deno, Bun, browsers)",
   "license": "Apache-2.0",
-  "author": "Survival Servers",
-  "homepage": "https://studio.survivalservers.com/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/survivalservers/studio-packages.git",
     "directory": "npm/studio"
   },
   "type": "module",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
-  "files": ["index.js", "index.d.ts"],
-  "publishConfig": {
-    "access": "public"
+  "files": ["dist", "LICENSE", "NOTICE", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "openapi-fetch": "0.17.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3"
   }
 }

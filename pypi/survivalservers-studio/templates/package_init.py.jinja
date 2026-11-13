@@ -1,0 +1,13 @@
+{% from "helpers.jinja" import docstring %}
+
+{{ docstring(package_description | safe_for_docstring) }}
+from .client import AuthenticatedClient, Client
+from .connect import DEFAULT_TIMEOUT, USER_AGENT, connect
+
+__all__ = (
+    "DEFAULT_TIMEOUT",
+    "USER_AGENT",
+    "AuthenticatedClient",
+    "Client",
+    "connect",
+)
