@@ -20,7 +20,4 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 )
 
-require github.com/survivalservers/studio-go v0.0.0
-
-// The shared API client lives next to this module until both are published.
-replace github.com/survivalservers/studio-go => ../client
+require github.com/survivalservers/studio-go v0.1.2

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Writes the third-party notices for a program built from this folder: Go's own licence (its standard library and
 # runtime are in every Go program) and the licence of each module built into it, read from the program itself
-# (go version -m) and the module cache. A module of ours (one replaced by a folder beside this one) is left out. A
-# module with no licence file stops the script: nothing ships without its notice.
+# (go version -m) and the module cache. A module of ours (one replaced by a folder beside this one, or one we publish
+# under github.com/survivalservers/) is left out. A module with no licence file stops the script: nothing ships
+# without its notice.
 #
 #   ./notices.sh PROGRAM OUT_FILE   write the notices for PROGRAM (any system's build) to OUT_FILE
 #   ./notices.sh --list PROGRAM     print the modules it would cover, "path version" one per line; PROGRAM - reads
@@ -16,7 +17,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 # (another module) or "=> ../folder" (a folder of ours, no version).
 modules() {
 	awk -F'\t' '
-		$2 == "dep" { if (m != "") print m; m = $3 " " $4; next }
+		$2 == "dep" { if (m != "") print m; m = ($3 ~ /^github\.com\/survivalservers\//) ? "" : $3 " " $4; next }
 		$2 == "=>" { m = ($4 == "" || $4 == "(devel)" || $3 ~ /^[.\/]/) ? "" : $3 " " $4; next }
 		END { if (m != "") print m }'
 }
