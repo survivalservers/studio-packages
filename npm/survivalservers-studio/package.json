@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "This name is held by Survival Servers; install @survivalservers/studio",
   "license": "Apache-2.0",
+  "files": ["README.md", "LICENSE"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/survivalservers/studio-packages.git",
