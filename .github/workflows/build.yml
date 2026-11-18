@@ -27,6 +27,10 @@ jobs:
           set -eu
           python3 -I .github/scripts/match-scanned_test.py
           python3 -I .github/scripts/check-scanned-ok_test.py
+          python3 -I .github/scripts/mcp-registry-gate_test.py
+
+      - name: The MCP Registry entry and its gate, as a release would read them (publishes nothing)
+        run: python3 -I .github/scripts/mcp-registry-gate.py
 
       - name: Build (publishes nothing)
         run: |
