@@ -46,6 +46,11 @@ def main():
     case("a rename out of .github/ needs the old path deleted",
          [{"filename": "tools/x.py", "status": "renamed", "previous_filename": ".github/scripts/x.py", "sha": A}], "", 1)
     case("two guarded files with one line: one missing", [lst, wf], f"Security OK: go/cli/SHA256SUMS.scanned {A} {T}", 1)
+    entry = {"filename": "go/mcp/server.json", "status": "modified", "sha": A}
+    case("the MCP Registry entry needs a line", [entry], "", 1)
+    case("the MCP Registry entry with its line passes", [entry], f"Security OK: go/mcp/server.json {A} {T}", 0)
+    case("the gate's files need a line", [{"filename": "mcp-registry/publish-go", "status": "added", "sha": B}], "", 1)
+    case("the AI tool's other files need none", [{"filename": "go/mcp/README.md", "status": "modified", "sha": A}], "", 0)
     case("extra spaces and other text around the lines are fine", [lst, wf],
          f"intro\n  Security OK:  go/cli/SHA256SUMS.scanned {A} {T}  \nSecurity OK: .github/workflows/publish.yml {B} {T}\n", 0)
 
