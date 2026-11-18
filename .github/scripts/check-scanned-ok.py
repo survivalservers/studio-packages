@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Refuse a pull request that changes a guarded file without Survival Servers Security's OK noted in it.
 
-Guarded: the scanned lists (any SHA256SUMS.scanned), the SOURCE_DATE_EPOCH file, and everything under .github/
-(workflows, scripts, CODEOWNERS). They decide what a release may send and how it is checked, so each change must carry
+Guarded: the scanned lists (any SHA256SUMS.scanned), the SOURCE_DATE_EPOCH file, everything under .github/
+(workflows, scripts, CODEOWNERS), the MCP Registry entry the publish job sends (go/mcp/server.json) and its gate files
+(mcp-registry/). They decide what a release may send and how it is checked, so each change must carry
 Security's OK for that exact content. Security sends its OK to the Studio Launch tab with the file's git blob id
 (`git hash-object FILE`); whoever writes the line into the pull request's description quotes that message's time:
 
@@ -33,7 +34,8 @@ MAX_FILES = 3000  # the most files GitHub lists for one pull request
 
 
 def guarded(path):
-    return path.endswith("SHA256SUMS.scanned") or path == "SOURCE_DATE_EPOCH" or path.startswith(".github/")
+    return (path.endswith("SHA256SUMS.scanned") or path == "SOURCE_DATE_EPOCH" or path.startswith(".github/")
+            or path == "go/mcp/server.json" or path.startswith("mcp-registry/"))
 
 
 def required(files):
@@ -86,7 +88,7 @@ def main():
         line = f"Security OK: {path} {digest} at <time of Security's message, UTC>"
         print(("MISSING:  " if (path, digest) in gaps else "found:    ") + line)
     if not required(files):
-        print("no guarded file changed (scanned lists, SOURCE_DATE_EPOCH, .github/)")
+        print("no guarded file changed (scanned lists, SOURCE_DATE_EPOCH, .github/, the MCP Registry entry and mcp-registry/)")
     problems += [f"{p} has no Security OK line for {d}" for p, d in gaps]
     state = "failure" if problems else "success"
     text = (f"{len(problems)} guarded change(s) without Security's OK" if problems

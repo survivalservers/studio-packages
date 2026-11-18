@@ -1,0 +1,6 @@
+# The owner's yes on the exact bytes of go/mcp/server.json, the MCP Registry entry this repository's publish job sends:
+# given on 2026-11-18 for its description, with the name, title and hosted address as they are. The hash is of the
+# whole file, byte for byte. Any change to that file needs a new yes and a new line here: the publish job refuses the
+# entry otherwise (.github/scripts/mcp-registry-gate.py).
+# This is not the go to publish. That is mcp-registry/publish-go, added only at publish time.
+a26f236affe2855e126391a79060b532425f9ded83eb00731e69f00ab64d57ce  go/mcp/server.json
