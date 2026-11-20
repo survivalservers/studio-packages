@@ -53,6 +53,22 @@ npm is published the first time by hand (above).
 A release run rebuilds the command-line tool's downloads only at the version on `go/cli/SHA256SUMS.scanned`, and only a
 release that carries them becomes "latest", so `releases/latest/download/...` always finds them.
 
+## The MCP Registry entry
+
+`go/mcp/server.json` is the AI tool's entry in the official MCP Registry, and the publish run sends exactly those bytes.
+Its job runs only when two files in `mcp-registry/` say so:
+
+- `approved.sha256` holds the SHA-256 of the entry the owner approved. Any other bytes are refused.
+- `publish-go` is added for one publication, in the commit the release tag names, once the hosted AI tool server answers
+  at the entry's address and every AI tool has connected to it once. It names the entry's version and SHA-256 and those
+  two dates. It is taken out after the publication: a version is published once.
+
+Without `publish-go`, the run's "MCP Registry entry" job says so, and nothing is sent. With it, the registry job waits
+for the same approval in the `publish` environment, checks that the hosted server answers, and signs in to the registry
+with this workflow's GitHub token (OIDC), so no registry key is stored. `mcp-publisher` is pinned by version and
+SHA-256. The job holds that token and read access to this repository, nothing else. Changes to the entry and to
+`mcp-registry/` need Security's OK, like the scanned lists.
+
 ## Commits, merges and tags
 
 - Every commit, merge and tag uses GitHub's no-reply address, never a personal one. The `emails` check refuses

@@ -6,3 +6,6 @@
 /SOURCE_DATE_EPOCH @humangenome
 # The checks and the publish workflow that read them.
 /.github/ @humangenome
+# The MCP Registry entry the publish job sends, and its gate files (the owner's approval, the lead's go).
+/go/mcp/server.json @humangenome
+/mcp-registry/ @humangenome
