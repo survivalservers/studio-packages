@@ -44,10 +44,11 @@ status "Scanned lists change only with Security's OK" that main requires (`.gith
 
 ## Placeholders for near misses of our names
 
-`npm/survivalservers-studio` (unscoped) installs @survivalservers/studio and re-exports it. `pypi/survivalserver-studio`
-(singular) installs nothing, and importing it raises an error naming survivalservers-studio. Both run nothing when
-installed and go out like every other file: built, scanned, listed in their `SHA256SUMS.scanned`, published by the
-release run after the approval. A name that is new on npm is published the first time by hand (above).
+`npm/survivalservers-studio` (unscoped) holds only a README that names @survivalservers/studio, a package.json and the
+licence: no code and no dependency. `pypi/survivalserver-studio` (singular) installs nothing, and importing it raises
+an error naming survivalservers-studio. Both run nothing when installed and go out like every other file: built,
+scanned, listed in their `SHA256SUMS.scanned`, published by the release run after the approval. A name that is new on
+npm is published the first time by hand (above).
 
 A release run rebuilds the command-line tool's downloads only at the version on `go/cli/SHA256SUMS.scanned`, and only a
 release that carries them becomes "latest", so `releases/latest/download/...` always finds them.

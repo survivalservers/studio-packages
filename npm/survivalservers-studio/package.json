@@ -1,29 +1,12 @@
 {
   "name": "survivalservers-studio",
   "version": "0.0.1",
-  "description": "Another spelling of @survivalservers/studio, the client for the Survival Servers Studio API. Installs it and re-exports it.",
+  "description": "This name is held by Survival Servers; install @survivalservers/studio",
   "license": "Apache-2.0",
-  "author": "Survival Servers",
-  "homepage": "https://studio.survivalservers.com/",
+  "files": ["README.md", "LICENSE"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/survivalservers/studio-packages.git",
     "directory": "npm/survivalservers-studio"
-  },
-  "type": "module",
-  "main": "./index.js",
-  "types": "./index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
-    }
-  },
-  "files": ["index.js", "index.d.ts"],
-  "dependencies": {
-    "@survivalservers/studio": "^0.1.0"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }
