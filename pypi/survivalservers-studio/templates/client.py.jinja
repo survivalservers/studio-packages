@@ -47,6 +47,11 @@ def _try_again(request: httpx.Request, response: httpx.Response) -> bool:
         return False
 
 
+def _names_only(values: dict[str, str]) -> str:
+    """Headers and cookies in a client's repr: names only (the API key is a header)."""
+    return repr(dict.fromkeys(values, "***"))
+
+
 class RetryingClient(httpx.Client):
     """An httpx.Client that tries a call again as its Retry says."""
 
@@ -125,8 +130,12 @@ class Client:
 
     raise_on_unexpected_status: bool = field(default=False, kw_only=True)
     _base_url: str = field(alias="base_url")
-    _cookies: dict[str, str] = field(factory=dict, kw_only=True, alias="cookies")
-    _headers: dict[str, str] = field(factory=dict, kw_only=True, alias="headers")
+    _cookies: dict[str, str] = field(
+        factory=dict, kw_only=True, alias="cookies", repr=_names_only
+    )
+    _headers: dict[str, str] = field(
+        factory=dict, kw_only=True, alias="headers", repr=_names_only
+    )
     _timeout: httpx.Timeout | None = field(default=None, kw_only=True, alias="timeout")
     _verify_ssl: str | bool | ssl.SSLContext = field(
         default=True, kw_only=True, alias="verify_ssl"
@@ -265,8 +274,12 @@ class AuthenticatedClient:
 
     raise_on_unexpected_status: bool = field(default=False, kw_only=True)
     _base_url: str = field(alias="base_url")
-    _cookies: dict[str, str] = field(factory=dict, kw_only=True, alias="cookies")
-    _headers: dict[str, str] = field(factory=dict, kw_only=True, alias="headers")
+    _cookies: dict[str, str] = field(
+        factory=dict, kw_only=True, alias="cookies", repr=_names_only
+    )
+    _headers: dict[str, str] = field(
+        factory=dict, kw_only=True, alias="headers", repr=_names_only
+    )
     _timeout: httpx.Timeout | None = field(default=None, kw_only=True, alias="timeout")
     _verify_ssl: str | bool | ssl.SSLContext = field(
         default=True, kw_only=True, alias="verify_ssl"
@@ -279,7 +292,7 @@ class AuthenticatedClient:
     _client: httpx.Client | None = field(default=None, init=False)
     _async_client: httpx.AsyncClient | None = field(default=None, init=False)
 
-    token: str
+    token: str = field(repr=False)
     prefix: str = "Bearer"
     auth_header_name: str = "Authorization"
 

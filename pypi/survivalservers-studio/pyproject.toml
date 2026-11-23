@@ -1,6 +1,6 @@
 [project]
 name = "survivalservers-studio"
-version = "0.1.0"
+version = "0.1.1"
 description = "Typed client for the Survival Servers Studio API, for studio backends and matchmakers"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
